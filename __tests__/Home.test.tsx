@@ -2,38 +2,36 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { createRemixStub } from '@remix-run/testing';
 import HomePage from '~/routes/_index';
 import { json } from '@remix-run/node';
-import { describe, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { userEvent } from '@testing-library/user-event';
 
 describe('Home Page', () => {
-  it('should render the home page', async () => {
-    const RemixStub = createRemixStub([
-      {
-        path: '/',
-        Component: HomePage,
-        loader() {
-          return json({ message: 'hello' });
-        },
+  const user = userEvent.setup();
+  const RemixStub = createRemixStub([
+    {
+      path: '/',
+      Component: HomePage,
+      loader() {
+        return json({ message: 'hello from loader' });
       },
-    ]);
+    },
+  ]);
+  render(<RemixStub />);
 
-    render(<RemixStub />);
-
-    await waitFor(() => screen.getByText('Welcome to Remix'));
+  it('should render the "hello from loader" message', async () => {
+    await waitFor(() => screen.getByText('hello from loader'));
   });
 
-  it('should render the hello message', async () => {
-    const RemixStub = createRemixStub([
-      {
-        path: '/',
-        Component: HomePage,
-        loader() {
-          return json({ message: 'hiya' });
-        },
-      },
-    ]);
+  it('should create a new note when click the button', async () => {
+    await waitFor(async () => {
+      const createNoteButton = screen.getByRole('button', {
+        name: 'Create a Note',
+      });
 
-    render(<RemixStub />);
+      await user.click(createNoteButton);
+      const notesUl = screen.getByRole('list');
 
-    await waitFor(() => screen.getByText('hiya'));
+      expect(notesUl).toContain(screen.getByText('Note 2'));
+    });
   });
 });
