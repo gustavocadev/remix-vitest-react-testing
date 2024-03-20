@@ -29,9 +29,9 @@ describe('Home Page', () => {
       });
 
       await user.click(createNoteButton);
-      const notesUl = screen.getByRole('list');
+      const notesList = screen.getByRole('list');
 
-      expect(notesUl).toContain(screen.getByText('Note 2'));
+      expect(notesList).toContain(screen.getByText('Note 2'));
     });
   });
 });
